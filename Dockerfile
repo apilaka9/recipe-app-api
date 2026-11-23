@@ -14,26 +14,18 @@ EXPOSE 8000
 
 ARG DEV=false
 
-# Step 1: Create virtual environment
-RUN python -m venv /py
-
-# Step 2: Upgrade pip
-RUN /py/bin/pip install --upgrade pip
-
-# Step 3: Install Django dependencies
-RUN apk add --no-cache postgresql-dev build-base
-RUN /py/bin/pip install -r /tmp/requirements.txt
-
-# Step 4: Install development dependencies conditionally
-RUN if [ "$DEV" = "true" ]; then \
-        /py/bin/pip install -r   /tmp/requirements.dev.txt; \
-    fi
-
-# Step 5: Remove temporary files
-RUN rm -rf /tmp/requirements.txt /tmp/requirements.dev.txt;
-
-# Step 6: Create user
-RUN adduser -D -H django-user
+RUN python -m venv /py && \
+    /py/bin/pip install --upgrade pip && \
+    apk add --no-cache postgresql-client && \
+    apk add --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
+    /py/bin/pip install -r /tmp/requirements.txt && \
+    if [ "$DEV" = "true" ]; then \
+        /py/bin/pip install -r /tmp/requirements.dev.txt; \
+    fi && \
+    rm -rf /tmp/requirements.txt /tmp/requirements.dev.txt && \
+    apk del .tmp-build-deps && \
+    adduser -D -H django-user
 
 ENV PATH="/py/bin:$PATH"
 
