@@ -52,3 +52,9 @@ volumes:
 # SELECT current_user, current_database();
 # docker-compose run --rm app sh -c "python manage.py wait_for_db"#
 #docker-compose run --rm app sh -c "python manage.py wait_for_db && flake8"
+# docker-compose run --rm app sh -c "flake8"
+#python -c "import sys; print(sys.executable)
+#python -c "from PIL import Image; print('Pillow installed successfully')"
+#docker compose build --no-cach
+
+#http://127.0.0.1:8000/admin/login/?next=/admin/
