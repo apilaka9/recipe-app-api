@@ -38,3 +38,15 @@ services:
 
 volumes:
   dev_db_data:
+ 
+#  docker-compose run --rm app sh -c "python manage.py wait_for_db"
+#  docker-compose run --rm app sh -c "python manage.py test"
+# docker-compose logs --tail=50 db
+#  docker debug recipe-app-api-db-1
+#  docker inspect recipe-app-api-db-1 --format "{{json .State.Health}}"
+#   docker-compose down -v
+#   docker-compose up -d --build
+#    docker exec -it recipe-app-api-db-1 psql -U postgres -d postgres
+# SELECT current_user, current_database();
+# docker-compose run --rm app sh -c "python manage.py wait_for_db"#
+#docker-compose run --rm app sh -c "python manage.py wait_for_db && flake8"

@@ -2,6 +2,7 @@
 """
 Test custom Django management commands.
 """
+
 from unittest.mock import patch
 
 from psycopg2 import OperationalError as Psycopg2OpError
@@ -10,32 +11,36 @@ from django.db.utils import OperationalError
 from django.test import SimpleTestCase
 
 
-@patch('django.db.utils.ConnectionHandler.__getitem__')
+@patch('django.core.management.base.BaseCommand.check')
 class CommandTests(SimpleTestCase):
-    """Test commands."""
+    """Test custom Django management commands."""
 
-    def test_wait_for_db_ready(self, patched_getitem):
-        """Test waiting for database if database ready."""
+    def test_wait_for_db_ready(self, patched_check):
+        """Test waiting for database when database is ready."""
 
-        patched_getitem.return_value = True
+        patched_check.return_value = []
 
         call_command('wait_for_db')
 
-        patched_getitem.assert_called_once_with('default')
-
-    @patch('time.sleep')
-    def test_wait_for_db_delay(self,patched_sleep,   patched_check):
-        """Test waiting for database when getting OperationalError."""
-
-        patched_check.side_effect = (
-            [Psycopg2OpError] * 2 + ""
-            [OperationalError] * 3 + ""
-            [True]
+        patched_check.assert_called_once_with(
+            databases=['default']
         )
 
-        call_command('wait_for_db') 
+    @patch('time.sleep')
+    def test_wait_for_db_delay(self, patched_sleep, patched_check):
+        """Test waiting when database is initially unavailable."""
+
+        patched_check.side_effect = (
+            [Psycopg2OpError] * 2
+            + [OperationalError] * 3
+            + [[]]
+        )
+
+        call_command('wait_for_db')
 
         self.assertEqual(patched_check.call_count, 6)
-  
-        patched_check.assert_called_with(database=['default'])
-        
+        self.assertEqual(patched_sleep.call_count, 5)
+
+        patched_check.assert_called_with(
+            databases=['default']
+        )
